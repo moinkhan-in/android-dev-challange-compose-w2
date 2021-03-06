@@ -20,7 +20,7 @@ fun QuickTimerPicker(
     onClick: (Long) -> Unit
 ) {
     val maxTime: Long = 1000 * 60 * 60 * 99
-    val offset: Long = 5 * 1000 // 5 seconds+
+    val offset: Long = 15 * 1000 // 15 seconds+
 
     LazyRow(modifier = modifier) {
         val totalButtons = maxTime / offset

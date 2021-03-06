@@ -80,7 +80,7 @@ fun MainScreen(viewModel: AppViewModel = AppViewModel()) {
                         backgroundColor = MaterialTheme.colors.primaryVariant,
                         disabledBackgroundColor = MaterialTheme.colors.primaryVariant.copy(alpha = 0.5f)
                     ),
-                    enabled = timerValueState.value != 0L
+                    enabled = timerValueState.value != 0L && isTimerRunningState.value.not()
                 ) {
                     Text(text = "  Start  ", style = TextStyle(fontSize = 18.sp, fontFamily = FontFamily.Monospace))
                 }
