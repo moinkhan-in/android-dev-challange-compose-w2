@@ -31,6 +31,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -66,15 +67,61 @@ fun FlipState.toOpposite(newValue: Int): FlipState {
     }
 }
 
+// Animated single digit card
 @Composable
 private fun TimerDigitAnimated(
-    modifier: Modifier = Modifier,
-    flipState: State<FlipState?> = mutableStateOf(FlipState.Front(0) as FlipState)
+    flipState: State<FlipState?>
 ) {
 
     val displayableDigit = remember { mutableStateOf(flipState.value?.newValue) }
+
+    val rotationX by getRotationStateByFlipAnimation(flipState)
+    if (flipState.value is FlipState.Back && rotationX >= 90f) {
+        displayableDigit.value = (flipState.value as FlipState.Back).newValue
+    } else if (flipState.value is FlipState.Front && rotationX >= 270f) {
+        displayableDigit.value = (flipState.value as FlipState.Front).newValue
+    }
+
+    TimerDigitCard(rotationXState = rotationX, displayableDigit = displayableDigit)
+}
+
+// Single Digit card
+@Composable
+fun TimerDigitCard(
+    modifier: Modifier = Modifier,
+    rotationXState: Float,
+    displayableDigit: MutableState<Int?>
+) {
+    Card(
+        modifier
+            .padding(2.dp)
+            .height(44.dp)
+            .width(35.dp)
+            .graphicsLayer(rotationX = rotationXState),
+        shape = RoundedCornerShape(3.dp),
+        elevation = 4.dp,
+        backgroundColor = MaterialTheme.colors.primaryVariant
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Text(
+                modifier = modifier.graphicsLayer(rotationX = 360 - rotationXState),
+                text = "${displayableDigit.value}",
+                style = TextStyle(
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 26.sp,
+                    fontFamily = FontFamily.Monospace
+                ),
+            )
+        }
+    }
+}
+
+// get rotationX value as state
+@Composable
+fun getRotationStateByFlipAnimation(flipState: State<FlipState?>): State<Float> {
     val transition = updateTransition(flipState.value)
-    val rotationX by transition.animateFloat(
+    return transition.animateFloat(
         transitionSpec = {
             if (initialState is FlipState.Front) {
                 repeatable(
@@ -97,38 +144,9 @@ private fun TimerDigitAnimated(
             }
         }
     ) { 0f }
-
-    if (flipState.value is FlipState.Back && rotationX >= 90f) {
-        displayableDigit.value = (flipState.value as FlipState.Back).newValue
-    } else if (flipState.value is FlipState.Front && rotationX >= 270f) {
-        displayableDigit.value = (flipState.value as FlipState.Front).newValue
-    }
-
-    Card(
-        modifier
-            .padding(2.dp)
-            .height(44.dp)
-            .width(35.dp)
-            .graphicsLayer(rotationX = rotationX),
-        shape = RoundedCornerShape(3.dp),
-        elevation = 4.dp,
-        backgroundColor = MaterialTheme.colors.primaryVariant
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(
-                modifier = modifier.graphicsLayer(rotationX = 360 - rotationX),
-                text = "${displayableDigit.value}",
-                style = TextStyle(
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 26.sp,
-                    fontFamily = FontFamily.Monospace
-                ),
-            )
-        }
-    }
 }
 
+// Main clock including hour/minutes/seconds
 @Composable
 @Preview
 fun JetTimer(viewModel: AppViewModel = AppViewModel()) {
@@ -139,73 +157,57 @@ fun JetTimer(viewModel: AppViewModel = AppViewModel()) {
 
         // Hour
         Column {
-            Text(
-                text = "Hours",
-                style = TextStyle(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp,
-                    fontFamily = FontFamily.Monospace
-                )
-            )
+            TimerLabel(title = "Hours")
             Row {
                 TimerDigitAnimated(flipState = viewModel.h0Obs.observeAsState())
                 TimerDigitAnimated(flipState = viewModel.h1Obs.observeAsState())
             }
         }
 
-        Column {
-            Text(text = "", style = TextStyle(fontSize = 10.sp))
-            Text(
-                text = ":",
-                style = TextStyle(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 26.sp,
-                    fontFamily = FontFamily.Monospace
-                )
-            )
-        }
+        TimeUnitSeparator()
 
         // Minute
         Column {
-            Text(
-                text = "Minutes",
-                style = TextStyle(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp,
-                    fontFamily = FontFamily.Monospace
-                )
-            )
+            TimerLabel(title = "Minutes")
             Row {
                 TimerDigitAnimated(flipState = viewModel.m0Obs.observeAsState())
                 TimerDigitAnimated(flipState = viewModel.m1Obs.observeAsState())
             }
         }
 
-        Column {
-            Text(text = "", style = TextStyle(fontSize = 10.sp))
-            Text(
-                text = ":",
-                style = TextStyle(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 26.sp,
-                    fontFamily = FontFamily.Monospace
-                )
-            )
-        }
+        TimeUnitSeparator()
 
+        // Seconds
         Column {
-            Text(
-                text = "Seconds",
-                style = TextStyle(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp,
-                    fontFamily = FontFamily.Monospace
-                )
-            )
+            TimerLabel(title = "Seconds")
             Row {
                 TimerDigitAnimated(flipState = viewModel.s0Obs.observeAsState())
                 TimerDigitAnimated(flipState = viewModel.s1Obs.observeAsState())
             }
         }
     }
+}
+
+@Composable
+fun TimeUnitSeparator() {
+    Text(
+        text = ":",
+        style = TextStyle(
+            fontWeight = FontWeight.Bold,
+            fontSize = 26.sp,
+            fontFamily = FontFamily.Monospace
+        )
+    )
+}
+
+@Composable
+fun TimerLabel(title: String) {
+    Text(
+        text = title,
+        style = TextStyle(
+            fontWeight = FontWeight.Bold,
+            fontSize = 12.sp,
+            fontFamily = FontFamily.Monospace
+        )
+    )
 }

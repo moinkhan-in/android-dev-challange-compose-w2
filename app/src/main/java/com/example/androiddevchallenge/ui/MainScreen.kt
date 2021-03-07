@@ -106,7 +106,14 @@ fun MainScreen(viewModel: AppViewModel = AppViewModel()) {
                     ),
                     enabled = timerValueState.value != 0L && isTimerRunningState.value.not()
                 ) {
-                    Text(text = "  Start  ", style = TextStyle(fontSize = 18.sp, fontFamily = FontFamily.Monospace))
+                    Text(
+                        text = "Start",
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                            fontFamily = FontFamily.Monospace,
+                            color = Color.White
+                        )
+                    )
                 }
                 Spacer(modifier = Modifier.size(32.dp))
                 Button(
@@ -117,7 +124,14 @@ fun MainScreen(viewModel: AppViewModel = AppViewModel()) {
                     ),
                     enabled = timerValueState.value != 0L
                 ) {
-                    Text(text = "  Reset  ", style = TextStyle(fontSize = 18.sp, fontFamily = FontFamily.Monospace))
+                    Text(
+                        text = "Reset",
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                            fontFamily = FontFamily.Monospace,
+                            color = Color.White
+                        )
+                    )
                 }
             }
             AnimatedVisibility(visible = isTimerRunningState.value.not()) {

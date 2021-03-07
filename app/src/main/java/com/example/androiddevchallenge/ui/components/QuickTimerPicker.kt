@@ -22,7 +22,9 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.toHMS
@@ -44,7 +46,10 @@ fun QuickTimerPicker(
                 onClick = { onClick.invoke(timeInMillis) },
                 colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(id = R.color.yellow))
             ) {
-                Text(text = timeInMillis.toHMS())
+                Text(
+                    text = timeInMillis.toHMS(),
+                    style = TextStyle(color = Color.Black)
+                )
             }
         }
     }
