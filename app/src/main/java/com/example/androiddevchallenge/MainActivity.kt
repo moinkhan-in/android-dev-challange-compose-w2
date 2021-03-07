@@ -26,7 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.androiddevchallenge.ui.MainScreen
 import com.example.androiddevchallenge.ui.theme.MyTheme
-import com.example.androiddevchallenge.R
 import com.example.androiddevchallenge.viewModels.AppViewModel
 
 class MainActivity : AppCompatActivity() {
